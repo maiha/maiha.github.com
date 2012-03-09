@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Hbase | くまくまーZ]]></title>
+  <link href="http://maiha.github.com/blog/categories/hbase/atom.xml" rel="self"/>
+  <link href="http://maiha.github.com/"/>
+  <updated>2012-03-09T18:03:14+09:00</updated>
+  <id>http://maiha.github.com/</id>
+  <author>
+    <name><![CDATA[maiha]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Hbaseを動かしてみる]]></title>
+    <link href="http://maiha.github.com/blog/2012/03/09/hbase/"/>
+    <updated>2012-03-09T10:40:00+09:00</updated>
+    <id>http://maiha.github.com/blog/2012/03/09/hbase</id>
+    <content type="html"><![CDATA[<p>Hbaseを使ったことがない Ubuntu 11.10(oneiric) ユーザがHbaseを動かすまでのメモ</p>
+
+<h3>インストール</h3>
+
+<p>正式なパッケージはないのでppaを利用する。
+(パッケージはまだ実験中でfeedback歓迎らしい [2012.3.7現在])</p>
+
+<pre><code>sudo apt-get install python-software-properties
+sudo add-apt-repository ppa:hadoop-ubuntu/dev
+sudo apt-get update
+sudo apt-get install hbase
+</code></pre>
+
+<p><code>/etc/hosts</code> を見て、loopback IPが<code>127.0.0.1</code>になってるいるかを確認する
+(内部的に127.0.0.1決め打ちでアクセス？)</p>
+
+<pre><code>127.0.0.1 localhost
+</code></pre>
+
+<p><code>/etc/security/limits.conf</code> の最後に以下を追加
+("hbase" は動かすユーザ名を指定)</p>
+
+<pre><code>hbase  -       nofile  32768
+</code></pre>
+
+<p><code>/etc/pam.d/common-session</code> の最後に以下を追加
+(前述のlimits.confを有効にするための設定)</p>
+
+<pre><code>session required  pam_limits.so
+</code></pre>
+
+<h3>設定</h3>
+
+<p>データファイルの保存場所を作成。(defaultは/tmp)</p>
+
+<pre><code>mkdir /var/lib/hbase/data
+chown hbase:hbase /var/lib/hbase/data
+</code></pre>
+
+<p><code>/etc/hbase/conf/hbase-site.xml</code> の <code>configuration</code> の中に以下を追加</p>
+
+<p>```xml
+<configuration>
+  <property></p>
+
+<pre><code>&lt;name&gt;hbase.rootdir&lt;/name&gt;
+&lt;value&gt;file:////var/lib/hbase/data&lt;/value&gt;
+</code></pre>
+
+<p>  </property>
+</configuration>
+```</p>
+
+<h3>サービスの管理 (hbaseユーザで実行)</h3>
+
+<p><code>hbase master</code> で管理できる。引数なしでusageが表示</p>
+
+<pre><code>% hbase master
+Usage: Master [opts] start|stop
+ start  Start Master. If local mode, start Master and RegionServer in same JVM
+ stop   Start cluster shutdown; Master signals RegionServer shutdown
+ where [opts] are:
+   --minServers=&lt;servers&gt;    Minimum RegionServers needed to host user tables.
+   --backup                  Master should start in backup mode
+</code></pre>
+
+<h4>サービス起動</h4>
+
+<p>startはforegroundで動くので、"> log &amp;" とかがいいのかもしれない。</p>
+
+<pre><code>hbase master start &gt; server.log 2&gt;&amp;1 &amp;
+</code></pre>
+
+<h4>サービス停止</h4>
+
+<pre><code>hbase master stop
+</code></pre>
+
+<h3>クライアントから利用</h3>
+
+<p><code>hbase shell</code> を実行するとconsoleが開く。見た目はirbで、中身もirb。helpでヘルプが見える。
+一般ユーザが認証なしで接続できる。
+(TODO: 認証方法)</p>
+
+<pre><code>% hbase shell
+hbase(main):001:0&gt; self.class.ancestors
+=&gt; [Object, HBaseConstants, Java, Kernel]
+hbase(main):002:0&gt; help
+HBase Shell, version 0.92.0, r1231986, Mon Jan 16 13:16:35 UTC 2012
+Type 'help "COMMAND"', (e.g. 'help "get"' -- the quotes are necessary) for help on a specific command.
+Commands are grouped. Type 'help "COMMAND_GROUP"', (e.g. 'help "general"') for help on a command group.
+...
+</code></pre>
+
+<h4>コマンド一覧</h4>
+
+<pre><code>テーブル作成　create 't1', 'f1', 'f2',...
+テーブル削除　drop 't1'
+テーブル有効　enable 't1'
+テーブル無効　disable 't1'
+テーブル情報　describe 't1'
+データ登録　　put 't1', 'r1', 'c1', 'value', ts1
+データ削除　  delete 't1', 'r1', 'c1', ts1
+全行表示　　　scan 't1'
+一行表示　　　get 't1', 'r1'
+</code></pre>
+
+<h4>実行例</h4>
+
+<p><code>ruby
+hbase(main):001:0&gt; create 'users', 'name', 'color'
+hbase(main):002:0&gt; put 'users', '1', 'name:name', '百田夏菜子'
+hbase(main):003:0&gt; put 'users', '1', 'name:yomi', 'ももたかなこ'
+hbase(main):004:0&gt; put 'users', '1', 'color:', 'red'
+hbase(main):005:0&gt; put 'users', '2', 'name:name', 'hoge'
+hbase(main):006:0&gt; get 'users', '1', ['name:yomi', 'color']
+COLUMN                          CELL
+ color:                         timestamp=1331280696571, value=red
+ name:yomi                      timestamp=1331280681186, value=\xE3\x82\x82\xE3 ...
+hbase(main):007:0&gt; delete 'users', '2', 'name:name'
+hbase(main):008:0&gt; drop 'users'
+ERROR: Table users is enabled. Disable it first.
+hbase(main):009:0&gt; disable 'users'
+hbase(main):010:0&gt; drop 'users'
+</code></p>
+
+<p>(TODO: 日本語の表示について調べる)</p>
+
+<h3>参考</h3>
+
+<ul>
+<li>Install hbase on Ubuntu 11.10  <a href="http://www.mail-archive.com/user@hbase.apache.org/msg14752.html">http://www.mail-archive.com/user@hbase.apache.org/msg14752.html</a></li>
+<li>Apache Hbase <a href="http://hbase.apache.org/book.html#quickstart">http://hbase.apache.org/book.html#quickstart</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
