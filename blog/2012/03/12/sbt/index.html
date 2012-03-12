@@ -5,13 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Blog Archive - くまくまーZ</title>
+  <title>sbtのインストールメモ - くまくまーZ</title>
   <meta name="author" content="maiha">
 
   
-  <meta name="description" content="Blog Archive 2012 sbtのインストールメモ
-Mar 12 2012 posted in Scala Hbaseを動かしてみる
-Mar 09 2012 posted in Hbase About Me 茶畑のプログラマ Categories Hbase (1)Scala (1) &hellip;">
+  <meta name="description" content="Install mkdir -p ~/bin
+wget -O ~/bin/sbt-launch-0.11.2.jar http://typesafe.artifactoryonline.com/typesafe/ivy-releases/org.scala-tools.sbt/sbt-launch &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -20,7 +19,7 @@ Mar 09 2012 posted in Hbase About Me 茶畑のプログラマ Categories Hbase (
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://maiha.github.com/blog/archives">
+  <link rel="canonical" href="http://maiha.github.com/blog/2012/03/12/sbt">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -63,49 +62,108 @@ Mar 09 2012 posted in Hbase About Me 茶畑のプログラマ Categories Hbase (
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Blog Archive</h1>
+    
+      <h1 class="entry-title">Sbtのインストールメモ</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-12T12:26:00+09:00" pubdate data-updated="true">Mar 12<span>th</span>, 2012</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives">
 
 
+<div class="entry-content"><h3>Install</h3>
 
-  
-  <h2>2012</h2>
+<pre><code>mkdir -p ~/bin
+wget -O ~/bin/sbt-launch-0.11.2.jar http://typesafe.artifactoryonline.com/typesafe/ivy-releases/org.scala-tools.sbt/sbt-launch/0.11.2/sbt-launch.jar
+echo 'java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=384M -jar `dirname $0`/sbt-launch-0.11.2.jar "$@"' &gt; ~/bin/sbt
+chmod u+x ~/bin/sbt
+</code></pre>
 
-<article>
-  
-<h1><a href="/blog/2012/03/12/sbt/">sbtのインストールメモ</a></h1>
-<time datetime="2012-03-12T12:26:00+09:00" pubdate><span class='month'>Mar</span> <span class='day'>12</span> <span class='year'>2012</span></time>
+<h3>Check (zsh)</h3>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/scala/'>Scala</a></span>
-</footer>
+<pre><code>rehash
+mkdir /tmp/aho
+cd /tmp/aho
+sbt
+&gt; console
+scala&gt; 1+2
+res0: Int = 3
+</code></pre>
 
+<h3>参考</h3>
 
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2012/03/09/hbase/">Hbaseを動かしてみる</a></h1>
-<time datetime="2012-03-09T10:40:00+09:00" pubdate><span class='month'>Mar</span> <span class='day'>09</span> <span class='year'>2012</span></time>
-
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/hbase/'>Hbase</a></span>
-</footer>
-
-
-</article>
+<ul>
+<li><a href="https://github.com/harrah/xsbt/wiki/Getting-Started-Setup">https://github.com/harrah/xsbt/wiki/Getting-Started-Setup</a></li>
+</ul>
 
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">maiha</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-12T12:26:00+09:00" pubdate data-updated="true">Mar 12<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/scala/'>Scala</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://maiha.github.com/blog/2012/03/12/sbt/" data-via="" data-counturl="http://maiha.github.com/blog/2012/03/12/sbt/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/03/09/hbase/" title="Previous Post: Hbaseを動かしてみる">&laquo; Hbaseを動かしてみる</a>
+      
+      
+    </p>
+  </footer>
 </article>
 
 </div>

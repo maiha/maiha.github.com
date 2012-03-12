@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Scala | くまくまーZ]]></title>
+  <link href="http://maiha.github.com/blog/categories/scala/atom.xml" rel="self"/>
+  <link href="http://maiha.github.com/"/>
+  <updated>2012-03-12T12:49:05+09:00</updated>
+  <id>http://maiha.github.com/</id>
+  <author>
+    <name><![CDATA[maiha]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[sbtのインストールメモ]]></title>
+    <link href="http://maiha.github.com/blog/2012/03/12/sbt/"/>
+    <updated>2012-03-12T12:26:00+09:00</updated>
+    <id>http://maiha.github.com/blog/2012/03/12/sbt</id>
+    <content type="html"><![CDATA[<h3>Install</h3>
+
+<pre><code>mkdir -p ~/bin
+wget -O ~/bin/sbt-launch-0.11.2.jar http://typesafe.artifactoryonline.com/typesafe/ivy-releases/org.scala-tools.sbt/sbt-launch/0.11.2/sbt-launch.jar
+echo 'java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=384M -jar `dirname $0`/sbt-launch-0.11.2.jar "$@"' &gt; ~/bin/sbt
+chmod u+x ~/bin/sbt
+</code></pre>
+
+<h3>Check (zsh)</h3>
+
+<pre><code>rehash
+mkdir /tmp/aho
+cd /tmp/aho
+sbt
+&gt; console
+scala&gt; 1+2
+res0: Int = 3
+</code></pre>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="https://github.com/harrah/xsbt/wiki/Getting-Started-Setup">https://github.com/harrah/xsbt/wiki/Getting-Started-Setup</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
