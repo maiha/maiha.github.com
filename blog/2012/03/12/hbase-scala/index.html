@@ -1,24 +1,105 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[くまくまーZ]]></title>
-  <link href="http://maiha.github.com/atom.xml" rel="self"/>
-  <link href="http://maiha.github.com/"/>
-  <updated>2012-03-13T13:36:28+09:00</updated>
-  <id>http://maiha.github.com/</id>
-  <author>
-    <name><![CDATA[maiha]]></name>
-    
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>ScalaでHbase (基本操作) - くまくまーZ</title>
+  <meta name="author" content="maiha">
 
   
-  <entry>
-    <title type="html"><![CDATA[ScalaでHbase (基本操作)]]></title>
-    <link href="http://maiha.github.com/blog/2012/03/12/hbase-scala/"/>
-    <updated>2012-03-12T13:20:00+09:00</updated>
-    <id>http://maiha.github.com/blog/2012/03/12/hbase-scala</id>
-    <content type="html"><![CDATA[<h3>versions</h3>
+  <meta name="description" content="versions Scala-2.9.1.final
+xsbt-0.11.2
+Hbase-0.92.0
+Hadoop-1.0.1 build.sbt 1
+2
+3
+4
+5
+6
+7
+8
+resolvers += &quot;Apache HBase&quot; at &quot;https:// &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://maiha.github.com/blog/2012/03/12/hbase-scala">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="くまくまーZ" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">くまくまーZ</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:maiha.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">ScalaでHbase (基本操作)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-12T13:20:00+09:00" pubdate data-updated="true">Mar 12<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h3>versions</h3>
 
 <ul>
 <li>Scala-2.9.1.final</li>
@@ -290,200 +371,131 @@ title: 怪盗少女
 <li>ももいろクローバーZ <a href="http://ja.wikipedia.org/wiki/%E3%82%82%E3%82%82%E3%81%84%E3%82%8D%E3%82%AF%E3%83%AD%E3%83%BC%E3%83%90%E3%83%BCZ">http://ja.wikipedia.org/wiki/%E3%82%82%E3%82%82%E3%81%84%E3%82%8D%E3%82%AF%E3%83%AD%E3%83%BC%E3%83%90%E3%83%BCZ</a></li>
 </ul>
 
-]]></content>
-  </entry>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
   
-  <entry>
-    <title type="html"><![CDATA[sbtのインストールメモ]]></title>
-    <link href="http://maiha.github.com/blog/2012/03/12/sbt/"/>
-    <updated>2012-03-12T12:26:00+09:00</updated>
-    <id>http://maiha.github.com/blog/2012/03/12/sbt</id>
-    <content type="html"><![CDATA[<h3>Install</h3>
 
-<pre><code>mkdir -p ~/bin
-wget -O ~/bin/sbt-launch-0.11.2.jar http://typesafe.artifactoryonline.com/typesafe/ivy-releases/org.scala-tools.sbt/sbt-launch/0.11.2/sbt-launch.jar
-echo 'java -Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=384M -jar `dirname $0`/sbt-launch-0.11.2.jar "$@"' &gt; ~/bin/sbt
-chmod u+x ~/bin/sbt
-</code></pre>
+<span class="byline author vcard">Posted by <span class="fn">maiha</span></span>
 
-<h3>Check (zsh)</h3>
+      
 
-<pre><code>rehash
-mkdir /tmp/aho
-cd /tmp/aho
-sbt
-&gt; console
-scala&gt; 1+2
-res0: Int = 3
-</code></pre>
 
-<h3>参考</h3>
 
-<ul>
-<li><a href="https://github.com/harrah/xsbt/wiki/Getting-Started-Setup">https://github.com/harrah/xsbt/wiki/Getting-Started-Setup</a></li>
-</ul>
 
-]]></content>
-  </entry>
+
+
+
+
   
-  <entry>
-    <title type="html"><![CDATA[Hbaseを動かしてみる]]></title>
-    <link href="http://maiha.github.com/blog/2012/03/09/hbase/"/>
-    <updated>2012-03-09T10:40:00+09:00</updated>
-    <id>http://maiha.github.com/blog/2012/03/09/hbase</id>
-    <content type="html"><![CDATA[<p>Hbaseを使ったことがない Ubuntu 11.10(oneiric) ユーザがHbaseを動かすまでのメモ</p>
-
-<h3>インストール</h3>
-
-<p>正式なパッケージはないのでppaを利用する。
-(パッケージはまだ実験中でfeedback歓迎らしい [2012.3.7現在])</p>
-
-<pre><code>sudo apt-get install python-software-properties
-sudo add-apt-repository ppa:hadoop-ubuntu/dev
-sudo apt-get update
-sudo apt-get install hbase
-</code></pre>
-
-<p><code>/etc/hosts</code> を見て、loopback IPが<code>127.0.0.1</code>になってるいるかを確認する
-(内部的に127.0.0.1決め打ちでアクセス？)</p>
-
-<pre><code>127.0.0.1 localhost
-</code></pre>
-
-<p><code>/etc/security/limits.conf</code> の最後に以下を追加
-(&#8220;hbase&#8221; は動かすユーザ名を指定)</p>
-
-<pre><code>hbase  -       nofile  32768
-</code></pre>
-
-<p><code>/etc/pam.d/common-session</code> の最後に以下を追加
-(前述のlimits.confを有効にするための設定)</p>
-
-<pre><code>session required  pam_limits.so
-</code></pre>
-
-<h3>設定</h3>
-
-<p>データファイルの保存場所を作成。(defaultは/tmp)</p>
-
-<pre><code>mkdir /var/lib/hbase/data
-chown hbase:hbase /var/lib/hbase/data
-</code></pre>
-
-<p><code>/etc/hbase/conf/hbase-site.xml</code> の <code>configuration</code> の中に以下を追加</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;configuration&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;property&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;name&gt;</span>hbase.rootdir<span class="nt">&lt;/name&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;value&gt;</span>file:////var/lib/hbase/data<span class="nt">&lt;/value&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/property&gt;</span>
-</span><span class='line'><span class="nt">&lt;/configuration&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
 
 
-<h3>サービスの管理 (hbaseユーザで実行)</h3>
+<time datetime="2012-03-12T13:20:00+09:00" pubdate data-updated="true">Mar 12<span>th</span>, 2012</time>
+      
 
-<p><code>hbase master</code> で管理できる。引数なしでusageが表示</p>
-
-<pre><code>% hbase master
-Usage: Master [opts] start|stop
- start  Start Master. If local mode, start Master and RegionServer in same JVM
- stop   Start cluster shutdown; Master signals RegionServer shutdown
- where [opts] are:
-   --minServers=&lt;servers&gt;    Minimum RegionServers needed to host user tables.
-   --backup                  Master should start in backup mode
-</code></pre>
-
-<h4>サービス起動</h4>
-
-<p>startはforegroundで動くので、&#8221;> log &amp;&#8221; とかがいいのかもしれない。</p>
-
-<pre><code>hbase master start &gt; server.log 2&gt;&amp;1 &amp;
-</code></pre>
-
-<h4>サービス停止</h4>
-
-<pre><code>hbase master stop
-</code></pre>
-
-<h3>クライアントから利用</h3>
-
-<p><code>hbase shell</code> を実行するとconsoleが開く。見た目はirbで、中身もirb。helpでヘルプが見える。
-一般ユーザが認証なしで接続できる。
-(TODO: 認証方法)</p>
-
-<pre><code>% hbase shell
-hbase(main):001:0&gt; self.class.ancestors
-=&gt; [Object, HBaseConstants, Java, Kernel]
-hbase(main):002:0&gt; help
-HBase Shell, version 0.92.0, r1231986, Mon Jan 16 13:16:35 UTC 2012
-Type 'help "COMMAND"', (e.g. 'help "get"' -- the quotes are necessary) for help on a specific command.
-Commands are grouped. Type 'help "COMMAND_GROUP"', (e.g. 'help "general"') for help on a command group.
-...
-</code></pre>
-
-<h4>コマンド一覧</h4>
-
-<pre><code>テーブル作成　create 't1', 'f1', 'f2',...
-テーブル削除　drop 't1'
-テーブル有効　enable 't1'
-テーブル無効　disable 't1'
-テーブル情報　describe 't1'
-データ登録　　put 't1', 'r1', 'c1', 'value', ts1
-データ削除　  delete 't1', 'r1', 'c1', ts1
-全行表示　　　scan 't1'
-一行表示　　　get 't1', 'r1'
-</code></pre>
-
-<h4>実行例</h4>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">hbase</span><span class="p">(</span><span class="n">main</span><span class="p">):</span><span class="mo">001</span><span class="p">:</span><span class="mi">0</span><span class="o">&gt;</span> <span class="n">create</span> <span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span>
-</span><span class='line'><span class="n">hbase</span><span class="p">(</span><span class="n">main</span><span class="p">):</span><span class="mo">002</span><span class="p">:</span><span class="mi">0</span><span class="o">&gt;</span> <span class="n">put</span> <span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;name:name&#39;</span><span class="p">,</span> <span class="s1">&#39;百田夏菜子&#39;</span>
-</span><span class='line'><span class="n">hbase</span><span class="p">(</span><span class="n">main</span><span class="p">):</span><span class="mo">003</span><span class="p">:</span><span class="mi">0</span><span class="o">&gt;</span> <span class="n">put</span> <span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;name:yomi&#39;</span><span class="p">,</span> <span class="s1">&#39;ももたかなこ&#39;</span>
-</span><span class='line'><span class="n">hbase</span><span class="p">(</span><span class="n">main</span><span class="p">):</span><span class="mo">004</span><span class="p">:</span><span class="mi">0</span><span class="o">&gt;</span> <span class="n">put</span> <span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;color:&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span>
-</span><span class='line'><span class="n">hbase</span><span class="p">(</span><span class="n">main</span><span class="p">):</span><span class="mo">005</span><span class="p">:</span><span class="mi">0</span><span class="o">&gt;</span> <span class="n">put</span> <span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;name:name&#39;</span><span class="p">,</span> <span class="s1">&#39;hoge&#39;</span>
-</span><span class='line'><span class="n">hbase</span><span class="p">(</span><span class="n">main</span><span class="p">):</span><span class="mo">006</span><span class="p">:</span><span class="mi">0</span><span class="o">&gt;</span> <span class="n">get</span> <span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="o">[</span><span class="s1">&#39;name:yomi&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="o">]</span>
-</span><span class='line'><span class="no">COLUMN</span>                          <span class="no">CELL</span>
-</span><span class='line'> <span class="n">color</span><span class="p">:</span>                         <span class="n">timestamp</span><span class="o">=</span><span class="mi">1331280696571</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">red</span>
-</span><span class='line'> <span class="nb">name</span><span class="ss">:yomi</span>                      <span class="n">timestamp</span><span class="o">=</span><span class="mi">1331280681186</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="p">\</span><span class="n">xE3</span><span class="p">\</span><span class="n">x82</span><span class="p">\</span><span class="n">x82</span><span class="p">\</span><span class="n">xE3</span> <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class='line'><span class="n">hbase</span><span class="p">(</span><span class="n">main</span><span class="p">):</span><span class="mo">007</span><span class="p">:</span><span class="mi">0</span><span class="o">&gt;</span> <span class="n">delete</span> <span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;name:name&#39;</span>
-</span><span class='line'><span class="n">hbase</span><span class="p">(</span><span class="n">main</span><span class="p">):</span><span class="mo">00</span><span class="mi">8</span><span class="p">:</span><span class="mi">0</span><span class="o">&gt;</span> <span class="n">drop</span> <span class="s1">&#39;users&#39;</span>
-</span><span class='line'><span class="no">ERROR</span><span class="p">:</span> <span class="no">Table</span> <span class="n">users</span> <span class="n">is</span> <span class="n">enabled</span><span class="o">.</span> <span class="no">Disable</span> <span class="n">it</span> <span class="n">first</span><span class="o">.</span>
-</span><span class='line'><span class="n">hbase</span><span class="p">(</span><span class="n">main</span><span class="p">):</span><span class="mo">00</span><span class="mi">9</span><span class="p">:</span><span class="mi">0</span><span class="o">&gt;</span> <span class="n">disable</span> <span class="s1">&#39;users&#39;</span>
-</span><span class='line'><span class="n">hbase</span><span class="p">(</span><span class="n">main</span><span class="p">):</span><span class="mo">010</span><span class="p">:</span><span class="mi">0</span><span class="o">&gt;</span> <span class="n">drop</span> <span class="s1">&#39;users&#39;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>(TODO: 日本語の表示について調べる)</p>
-
-<h3>参考</h3>
-
-<ul>
-<li>Install hbase on Ubuntu 11.10  <a href="http://www.mail-archive.com/user@hbase.apache.org/msg14752.html">http://www.mail-archive.com/user@hbase.apache.org/msg14752.html</a></li>
-<li>Apache Hbase <a href="http://hbase.apache.org/book.html#quickstart">http://hbase.apache.org/book.html#quickstart</a></li>
-</ul>
-
-]]></content>
-  </entry>
+<span class="categories">
   
-</feed>
+    <a class='category' href='/blog/categories/hbase/'>Hbase</a>, <a class='category' href='/blog/categories/scala/'>Scala</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://maiha.github.com/blog/2012/03/12/hbase-scala/" data-via="" data-counturl="http://maiha.github.com/blog/2012/03/12/hbase-scala/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/03/12/sbt/" title="Previous Post: sbtのインストールメモ">&laquo; sbtのインストールメモ</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>茶畑のプログラマ</p>
+</section>
+<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/hbase'>Hbase (2)</a></li><li><a href='/blog/categories/scala'>Scala (2)</a></li></ul>
+</section>
+<section>
+  <h1>Tag Cloud</h1>
+    <span id="tag-cloud"><a href='/blog/categories/hbase' style='font-size: 160.0%'>Hbase(2)</a> <a href='/blog/categories/scala' style='font-size: 160.0%'>Scala(2)</a> </span>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/03/12/hbase-scala/">ScalaでHbase (基本操作)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/12/sbt/">sbtのインストールメモ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/09/hbase/">Hbaseを動かしてみる</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - maiha -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
