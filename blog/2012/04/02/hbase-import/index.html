@@ -1,0 +1,609 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>HBaseへデータ投入(importtsvの使い方) - くまくまーZ</title>
+  <meta name="author" content="maiha">
+
+  
+  <meta name="description" content="この記事の対象者 Hadoop/HBaseの初心者
+HBaseが動く環境はできた
+実験用のデータを入れたい
+規模は100万か1億件ぐらい インポート方法 a) hbase shell
+b) importtsv
+c) importtsv.bulk.output a) hbase shell の使い方 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://maiha.github.com/blog/2012/04/02/hbase-import">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="くまくまーZ" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">くまくまーZ</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:maiha.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">HBaseへデータ投入(importtsvの使い方)</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-04-02T12:31:00+09:00" pubdate data-updated="true">Apr 2<span>nd</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>この記事の対象者</h2>
+
+<ul>
+<li>Hadoop/HBaseの初心者</li>
+<li>HBaseが動く環境はできた</li>
+<li>実験用のデータを入れたい</li>
+<li>規模は100万か1億件ぐらい</li>
+</ul>
+
+
+<h2>インポート方法</h2>
+
+<ul>
+<li>a) hbase shell</li>
+<li>b) importtsv</li>
+<li>c) importtsv.bulk.output</li>
+</ul>
+
+
+<h2>a) hbase shell の使い方</h2>
+
+<p><code>hbase shell</code> を使って登録する方法。rubyコードで実行できるので柔軟。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">create</span> <span class="s1">&#39;sample&#39;</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span>
+</span><span class='line'><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="o">.</span><span class="n">.</span><span class="s1">&#39;z&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span><span class="o">|</span><span class="n">i</span><span class="o">|</span> <span class="n">put</span> <span class="s1">&#39;sample&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;data:alpha&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">}</span>
+</span><span class='line'><span class="nb">scan</span> <span class="s1">&#39;samples&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>ROW                         COLUMN+CELL
+ a                          column=data:alpha, timestamp=1333387516755, value=a
+ b                          column=data:alpha, timestamp=1333387516772, value=b
+...
+</code></pre>
+
+<p>手ごろなfixture作成にはよいが、これで1億件やる気はしない</p>
+
+<h2>b) importtsv の使い方</h2>
+
+<p>既存のインポートツールを利用する方法。
+入力データはtsv,csvに限定されるが、<code>hbase.jar</code>に含まれる<code>ImportTsv</code>が目的に合致する。
+実行には<code>hbase.jar</code>ファイルのフルパスが必要なので、まずはjarをlocateなどで探す。</p>
+
+<pre><code>% locate /hbase-0. | grep .jar
+/usr/local/lib/hbase-0.92.1/hbase-0.92.1-tests.jar
+/usr/local/lib/hbase-0.92.1/hbase-0.92.1.jar
+...
+</code></pre>
+
+<h3>hadoopでのjarファイルの実行</h3>
+
+<p>あとは、以下の書式でjarファイル内の機能を実行できる。</p>
+
+<pre><code>hadoop jar &lt;HBASE_JAR_FILE&gt; &lt;COMMAND&gt;
+</code></pre>
+
+<p><code>ImportTsv</code>のコマンド名は <code>importtsv</code> なので、以下のコマンドになる。</p>
+
+<pre><code>% hadoop jar /usr/local/lib/hbase-0.92.1/hbase-0.92.1.jar importtsv
+</code></pre>
+
+<h3>HADOOP_CLASSPATH</h3>
+
+<p>このとき、<code>HADOOP_CLASSPATH</code> が設定されていないと以下のようなエラーが出るので注意。</p>
+
+<pre><code>% hadoop jar /usr/local/lib/hbase-0.92.1/hbase-0.92.1.jar importtsv
+Exception in thread "main" java.lang.NoClassDefFoundError: com/google/common/collect/Multimap
+    at org.apache.hadoop.hbase.mapreduce.Driver.main(Driver.java:43)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+</code></pre>
+
+<p>その場合、例えばzshであれば、以下のコマンドで <code>HADOOP_CLASSPATH</code> を設定できる。</p>
+
+<pre><code>export HADOOP_CLASSPATH=`hbase classpath`
+</code></pre>
+
+<h3>importtsvのヘルプ</h3>
+
+<p>設定に問題がなければ、以下のようなヘルプが表示される。</p>
+
+<pre><code>% hadoop jar /usr/local/lib/hbase-0.92.1/hbase-0.92.1.jar importtsv
+ERROR: Wrong number of arguments: 0
+Usage: importtsv -Dimporttsv.columns=a,b,c &lt;tablename&gt; &lt;inputdir&gt;
+</code></pre>
+
+<h3>引数: tablename</h3>
+
+<p>データ投入先のHBaseテーブル名を指定する。
+テーブルは、実行前に作っておく必要がある。
+サンプルとして以下の<code>songs</code>テーブルを<code>hbase shell</code>から作成する。
+CF名は何でもいいので適当に<code>data</code>にしておく。</p>
+
+<pre><code>create 'songs', 'data'
+</code></pre>
+
+<h3>引数: inputdir</h3>
+
+<p>データのソース(tsv,csv)を指定する。fileでなくdirとなっているのは、
+<code>bulk.output</code>モードでは、ディレクトリを指定するからだと思う(多分)。
+サンプルとして以下の<code>songs.csv</code>を利用する。</p>
+
+<pre><code>20090805,ももいろパンチ,ももいろクローバー
+20100505,怪盗少女,ももいろクローバー
+20101110,ピンキージョーンズ,ももいろクローバー
+20110706,Z伝説,ももいろクローバーZ
+</code></pre>
+
+<p>HBaseがローカル(Standalone)モードならば直接OS上のファイルを指定できるが、
+分散モードであれば入力ファイルはhdfs上に存在している必要がある。</p>
+
+<h3>hdfsへのファイル転送</h3>
+
+<p>以下のコマンドで<code>songs.csv</code>をhdfs上に配置できる。引数はlocal、dstの順。面倒なので同名がよい。
+コマンドは<code>dfs</code>と<code>fs</code>のどちらでもよい(多分同じ)。</p>
+
+<pre><code>hadoop dfs -put songs.csv songs.csv
+</code></pre>
+
+<p>hdfs上のファイルは<code>-ls</code>で確認できる。</p>
+
+<pre><code>% hadoop dfs -ls
+-rw-r--r--   1 maiha supergroup         107 2012-04-02 03:14 /user/maiha/songs.csv
+</code></pre>
+
+<p>もしputでエラーが出た場合、
+高確率で<code>core-site.xml</code>の<code>hadoop.tmp.dir</code>のパスに書き込み権限がでていないので、
+以下のようにwritableにする。(PATHは環境依存)</p>
+
+<pre><code>chmod a+rwxt /var/lib/hadoop/tmp
+</code></pre>
+
+<h3>引数: -Dimporttsv.columns=a,b,c</h3>
+
+<p>csvのカラム名を指定する。
+HTableのROW_KEYになる項目は<code>HBASE_ROW_KEY</code>という予約語を指定する。
+それ以外は、対象テーブルのカラム名を<code>cf:qualifier</code>形式で指定する。</p>
+
+<pre><code>20090805,ももいろパンチ,ももいろクローバー
+</code></pre>
+
+<p>の最初の日付をROW_KEYに、2つ目の曲名をdataのtitleに、
+3つ目の歌手名をdataのsingerに入れたいので、
+以下のような指定方法になる。</p>
+
+<pre><code>-Dimporttsv.columns=HBASE_ROW_KEY,data:title,data:singer
+</code></pre>
+
+<p>入力ファイルの種別(csv,tsv)に関係なく、ここはカンマで区切る。
+途中にスペースが入ってもいけないので(分かりづらいエラーが起きる)、
+実行時は改行等にも注意する。</p>
+
+<h3>引数: -Dimporttsv.separator=X</h3>
+
+<p>tsvの場合は不要だが、ここではcsvを扱うので、セパレータを&#8221;,&#8221;として指定する。
+ちなみに、セパレータには1バイトしか指定できない。</p>
+
+<pre><code>-Dimporttsv.separator=,
+</code></pre>
+
+<h3>実行</h3>
+
+<p>改めてまとめると、インポートのコマンドは以下のようになる。</p>
+
+<pre><code>% hadoop jar /usr/local/lib/hbase-0.92.1/hbase-0.92.1.jar importtsv \
+   -Dimporttsv.separator=, \
+   -Dimporttsv.columns=HBASE_ROW_KEY,data:title,data:singer \
+   songs songs.csv
+</code></pre>
+
+<h3>確認</h3>
+
+<p><code>hbase shell</code>で確認。</p>
+
+<pre><code>&gt; count 'songs'
+4 row(s) in 0.0170 seconds
+
+&gt; scan 'songs'
+ROW               COLUMN+CELL
+ 20090805         column=data:singer, timestamp=1333393153254, value=...
+</code></pre>
+
+<h2>c) importtsv.bulk.output の使い方</h2>
+
+<p>b)のimporttsvは、Reducerを使わずに直接HTableに随時書き込んでいく方式であるが、
+ImportTsvには<code>importtsv.bulk.output</code>オプションによる別のインポート方式がある。
+これは、以下の2コマンドによって確実でより高速なbulkインサートを提供する。</p>
+
+<ol>
+<li>importtsv: M/RによりHBaseの内部ストレージ形式の中間データをHFileとして作成</li>
+<li>completebulkload: 作成したHFileを各クラスタに転送</li>
+</ol>
+
+
+<h3>c1: importtsv.bulk.output</h3>
+
+<p>bulk.outputモードでimporttsvを実行するには、
+<code>b) importtsv</code> の引数に <code>-Dimporttsv.bulk.output=XXX</code> を追加する。
+ここで <code>XXX</code> には、中間データを保存するhdfsのディレクトリ(存在してはいけない)を指定する。
+名前は何でもよいが、「テーブル名-bulk」が後から見たときにわかりやすい(消しやすい)。</p>
+
+<h4>実行例</h4>
+
+<p>具体的には、<code>b) importtsv</code> で実行したコマンド</p>
+
+<pre><code>% hadoop jar /usr/local/lib/hbase-0.92.1/hbase-0.92.1.jar importtsv \
+   -Dimporttsv.separator=, \
+   -Dimporttsv.columns=HBASE_ROW_KEY,data:title,data:singer \
+   songs songs.csv
+</code></pre>
+
+<p>に、<code>-Dimporttsv.bulk.output=songs-bulk</code> を追加して、bulk.outputを実行する。
+もちろん、<code>b)</code>同様、入力ファイルはhdfsにputされている必要がある。
+よって、bulk.outputモードでのimporttsvコマンドは以下のようになる。</p>
+
+<pre><code>% hadoop jar /usr/local/lib/hbase-0.92.1/hbase-0.92.1.jar importtsv \
+   -Dimporttsv.bulk.output=songs-bulk \
+   -Dimporttsv.separator=, \
+   -Dimporttsv.columns=HBASE_ROW_KEY,data:title,data:singer \
+   songs songs.csv
+</code></pre>
+
+<h4>中間ファイルの確認</h4>
+
+<p><code>b)</code> では直ちに songs テーブルに反映されたが、
+<code>bulk.output</code> ではこの時点ではまだテーブルにwriteは発生していない。
+変わりに、指定したパスに中間データが作成されている。</p>
+
+<pre><code>% hadoop dfs -ls songs-bulk
+Found 3 items
+-rw-r--r--   1 maiha supergroup          0 2012-04-02 04:57 /user/maiha/songs-bulk/_SUCCESS
+drwxr-xr-x   - maiha supergroup          0 2012-04-02 04:57 /user/maiha/songs-bulk/_logs
+drwxr-xr-x   - maiha supergroup          0 2012-04-02 04:57 /user/maiha/songs-bulk/data
+</code></pre>
+
+<h3>c2: completebulkload</h3>
+
+<pre><code>hadoop jar &lt;HBASE_JAR&gt; completebulkload &lt;HDFS_BULK_OUTPUT_PATH&gt; &lt;TABLE_NAME&gt;
+</code></pre>
+
+<p>中間データ(bulk.output)は、
+<code>completebulkload</code>コマンドによって各クラスタの実テーブルに投入される。</p>
+
+<pre><code>% hadoop jar /usr/local/lib/hbase-0.92.1/hbase-0.92.1.jar completebulkload songs-bulk songs
+</code></pre>
+
+<h3>注意点</h3>
+
+<p>bulk.outputモードで作られる中間データファイルは、
+最終的なHTableのサイズの4～5倍のサイズになるため、
+十分なディスク容量が必要になる。</p>
+
+<p>具体値として、5千万行(11GB)のcsvを入れた場合、
+最終的なHTableのサイズは22GBだが、
+中間ファイルの作成時に最大で100GBほどディスクを消費していた。
+(環境はサーバ1の擬似分散の場合)</p>
+
+<h2>事例: 郵便番号(12万件)</h2>
+
+<p>この記事の想定規模を「100万か1億件」としておきながら、
+実際に入れたのが4件というのは、いくらそれで理論的に大丈夫だと言われても釈然としないのも事実。
+と言いつつも100万にも届かないが、ある程度の量の分かりやすい事例として
+「郵便番号データ」を入れてみる。以下、手順のみで説明は省略。</p>
+
+<h3>データ取得</h3>
+
+<pre><code>wget http://www.post.japanpost.jp/zipcode/dl/kogaki/lzh/ken_all.lzh
+lha e ken_all.lzh
+nkf -Sud ken_all.csv | sed -e 's/[ "]//g' &gt; zips.csv
+</code></pre>
+
+<h3>データ確認</h3>
+
+<pre><code>% wc -l zips.csv
+123218 zips.csv
+% head zips.csv
+01101,060,0600000,ホッカイドウ,サッポロシチュウオウク,イカニケイサイガナイバアイ,北海道,札幌市中央区,以 下に掲載がない場合,0,0,0,0,0,0
+01101,064,0640941,ホッカイドウ,サッポロシチュウオウク,アサヒガオカ,北海道,札幌市中央区,旭ケ丘,0,0,1,0,0,0
+...
+</code></pre>
+
+<h3>hdfs転送</h3>
+
+<pre><code>% hadoop dfs -put zips.csv zips.csv
+</code></pre>
+
+<h3>テーブル作成</h3>
+
+<pre><code>create 'zips', 'd'
+</code></pre>
+
+<h3>データ投入</h3>
+
+<pre><code>% hadoop jar /usr/local/lib/hbase-0.92.1/hbase-0.92.1.jar importtsv \
+   -Dimporttsv.separator=, \
+   -Dimporttsv.columns=d:c1,d:c2,HBASE_ROW_KEY,d:c4,d:c5,d:c6,d:c7,d:c8,d:c9,d:c10,d:c11,d:c12,d:c13,d:c14,d:c15 \
+   zips zips.csv
+</code></pre>
+
+<h3>確認</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">import</span> <span class="nn">org.apache.hadoop.hbase.HBaseConfiguration</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">org.apache.hadoop.hbase.client.</span><span class="o">{</span><span class="nc">HTable</span><span class="o">,</span><span class="nc">Get</span><span class="o">}</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">org.apache.hadoop.hbase.util.Bytes</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">scala.collection.JavaConversions._</span>     <span class="c1">// for entrySet:java.util.Set</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">val</span> <span class="n">conf</span>  <span class="k">=</span> <span class="k">new</span> <span class="nc">HBaseConfiguration</span>
+</span><span class='line'><span class="k">val</span> <span class="n">songs</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">HTable</span><span class="o">(</span><span class="n">conf</span><span class="o">,</span> <span class="s">&quot;zips&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="k">val</span> <span class="n">get</span>   <span class="k">=</span> <span class="k">new</span> <span class="nc">Get</span><span class="o">(</span><span class="s">&quot;9000005&quot;</span><span class="o">.</span><span class="n">getBytes</span><span class="o">)</span>
+</span><span class='line'><span class="k">val</span> <span class="n">row</span>   <span class="k">=</span> <span class="n">songs</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="n">get</span><span class="o">)</span>
+</span><span class='line'><span class="k">val</span> <span class="n">cf</span>    <span class="k">=</span> <span class="n">row</span><span class="o">.</span><span class="n">getFamilyMap</span><span class="o">(</span><span class="s">&quot;d&quot;</span><span class="o">.</span><span class="n">getBytes</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="n">entry</span> <span class="k">&lt;-</span> <span class="n">cf</span><span class="o">.</span><span class="n">entrySet</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">key</span>   <span class="k">=</span> <span class="nc">Bytes</span><span class="o">.</span><span class="n">toString</span><span class="o">(</span><span class="n">entry</span><span class="o">.</span><span class="n">getKey</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">value</span> <span class="k">=</span> <span class="nc">Bytes</span><span class="o">.</span><span class="n">toString</span><span class="o">(</span><span class="n">entry</span><span class="o">.</span><span class="n">getValue</span><span class="o">)</span>
+</span><span class='line'>  <span class="n">printf</span><span class="o">(</span><span class="s">&quot;%s: %s\n&quot;</span><span class="o">,</span> <span class="n">key</span><span class="o">,</span> <span class="n">value</span><span class="o">)</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<pre><code>c1: 47201
+c10: 0
+c11: 0
+c12: 0
+c13: 0
+c14: 0
+c15: 0
+c2: 900
+c4: オキナワケン
+c5: ナハシ
+c6: アメク
+c7: 沖縄県
+c8: 那覇市
+c9: 天久
+</code></pre>
+
+<h2>importtsvとbulk.outputはどちらがいいのか？</h2>
+
+<ul>
+<li>importtsvは中間ファイルも作らないので手軽</li>
+<li>bulk.outputはHTableを作成して置換するイメージなので安心 (importの原子性が保障されている)</li>
+</ul>
+
+
+<p>importtsvはお手軽だが、落ちているリージョンサーバがあったりすると、
+データの欠損や二重登録などの危険性がある。
+データの正確性を考慮すると、bulk.outputを使うべき、という結論になる。</p>
+
+<h2>ハマリ所</h2>
+
+<ul>
+<li>データファイル(tsv,csv)のカラム数とimporttsv.columnsの数が違うとエラー</li>
+<li>bulk.outputを使う場合はディスク容量に注意 <a href="https://gist.github.com/2260678#comments">https://gist.github.com/2260678#comments</a></li>
+</ul>
+
+
+<h2>参考</h2>
+
+<ul>
+<li>importtsv <a href="http://archive.cloudera.com/cdh/3/hbase/bulk-loads.html">http://archive.cloudera.com/cdh/3/hbase/bulk-loads.html</a></li>
+<li>日本郵便: 郵便番号データダウンロード <a href="http://www.post.japanpost.jp/zipcode/download.html">http://www.post.japanpost.jp/zipcode/download.html</a></li>
+<li><a href="https://twitter.com/#!/ueshin/status/186779758951010304">https://twitter.com/#!/ueshin/status/186779758951010304</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">maiha</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-04-02T12:31:00+09:00" pubdate data-updated="true">Apr 2<span>nd</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/hbase/'>HBase</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://maiha.github.com/blog/2012/04/02/hbase-import/" data-via="" data-counturl="http://maiha.github.com/blog/2012/04/02/hbase-import/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/03/12/hbase-scala/" title="Previous Post: ScalaでHbase (基本操作)">&laquo; ScalaでHbase (基本操作)</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>茶畑のプログラマ</p>
+</section>
+<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/hbase'>Hbase (3)</a></li><li><a href='/blog/categories/scala'>Scala (2)</a></li></ul>
+</section>
+<section>
+  <h1>Tag Cloud</h1>
+    <span id="tag-cloud"><a href='/blog/categories/hbase' style='font-size: 160.0%'>Hbase(3)</a> <a href='/blog/categories/scala' style='font-size: 140.0%'>Scala(2)</a> </span>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/04/02/hbase-import/">HBaseへデータ投入(importtsvの使い方)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/12/hbase-scala/">ScalaでHbase (基本操作)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/12/sbt/">sbtのインストールメモ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/09/hbase/">Hbaseを動かしてみる</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - maiha -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
